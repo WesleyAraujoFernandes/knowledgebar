@@ -1,6 +1,8 @@
 package com.knowledgebar.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import com.knowledgebar.domain.model.StockMovement;
 import com.knowledgebar.domain.repository.OrderRepository;
 import com.knowledgebar.domain.repository.ProductRepository;
 import com.knowledgebar.domain.repository.StockMovementRepository;
+import com.knowledgebar.dto.response.OrderItemResponseDTO;
+import com.knowledgebar.dto.response.OrderResponseDTO;
 import com.knowledgebar.exception.BusinessException;
 import com.knowledgebar.exception.ResourceNotFoundException;
 
@@ -32,6 +36,84 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.stockMovementRepository = stockMovementRepository;
+    }
+
+    @Transactional
+    public Long openOrder() {
+        Order order = new Order();
+        order.setStatus(OrderStatus.OPEN);
+        orderRepository.save(order);
+        return order.getId();
+    }
+
+@Transactional
+public OrderResponseDTO getOrderById(Long orderId) {
+
+    Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
+
+    List<OrderItemResponseDTO> items = order.getItems().stream()
+            .map(item -> {
+                BigDecimal total = item.getProduct().getPrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity()));
+
+                return new OrderItemResponseDTO(
+                        item.getProduct().getId(),
+                        item.getProduct().getName(),
+                        item.getQuantity(),
+                        item.getProduct().getPrice(),
+                        total
+                );
+            })
+            .toList();
+
+    BigDecimal total = items.stream()
+            .map(OrderItemResponseDTO::getTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    return new OrderResponseDTO(
+            order.getId(),
+            order.getStatus(),
+            order.getCreatedAt(),
+            order.getCanceledAt(),
+            total,
+            items
+    );
+}
+
+
+    public void addItem(Long orderId, Long productId, Integer quantity) {
+        
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        if (product.getStockQuantity() < quantity) {
+            throw new BusinessException("Estoque insuficiente para o produto: " + product.getName());
+        }
+
+        if (order.getStatus() != OrderStatus.OPEN) {
+            throw new BusinessException("Não é possível adicionar itens a uma comanda que não está aberta");
+        }
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        orderItem.setProduct(product);
+        orderItem.setQuantity(quantity);
+        order.getItems().add(orderItem);
+        orderRepository.save(order);
+
+        product.setStockQuantity(product.getStockQuantity() - quantity);
+        productRepository.save(product);
+        
+        StockMovement movement = new StockMovement();
+        movement.setProduct(product);
+        movement.setType(StockMovementType.OUT);
+        movement.setQuantity(quantity);
+        movement.setReason("Saída por comanda " + order.getId());
+        movement.setCreatedAt(LocalDateTime.now());
+        stockMovementRepository.save(movement);
     }
 
     @Transactional
@@ -76,14 +158,19 @@ public class OrderService {
     }
 
     @Transactional
-    public Long openOrder() {
+    public void closeOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
 
-        Order order = new Order();
-        order.setStatus(OrderStatus.OPEN);
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            throw new BusinessException("Comanda não possui itens para finalização");
+        }
 
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            throw new BusinessException("Comanda está cancelada e não pode ser finalizada");
+        }
+
+        order.setStatus(OrderStatus.CLOSED);
         orderRepository.save(order);
-
-        return order.getId();
     }
-
 }

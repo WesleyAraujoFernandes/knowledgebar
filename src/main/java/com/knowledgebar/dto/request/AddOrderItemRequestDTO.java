@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AddTabItemRequestDTO {
+public class AddOrderItemRequestDTO {
 
     @NotNull
     private Long productId;

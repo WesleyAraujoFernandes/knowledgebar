@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.knowledgebar.service.OrderService;
@@ -19,16 +20,32 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancel(@PathVariable Long id) {
-        orderService.cancelOrder(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping
     public ResponseEntity<Long> open() {
         Long orderId = orderService.openOrder();
         return ResponseEntity.ok(orderId);
     }
 
+    @PostMapping("/{orderId}/items")
+    public ResponseEntity<Void> addItem(
+            @PathVariable Long orderId,
+            @RequestParam Long productId,
+            @RequestParam Integer quantity) {
+
+        orderService.addItem(orderId, productId, quantity);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{orderId}/close")
+    public ResponseEntity<Void> close(@PathVariable Long orderId) {
+        orderService.closeOrder(orderId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{orderId}/cancel")
+    public ResponseEntity<Void> cancel(@PathVariable Long orderId) {
+        orderService.cancelOrder(orderId);
+        return ResponseEntity.noContent().build();
+    }
 }
+
