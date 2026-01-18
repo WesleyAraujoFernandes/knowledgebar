@@ -24,6 +24,7 @@ public class OrderResponseDTO {
     private LocalDateTime openedAt;
     private LocalDateTime closedAt;
     //private BigDecimal subTotal;
+    private String reference;
     private BigDecimal total;
     private List<OrderItemResponseDTO> items;
 }

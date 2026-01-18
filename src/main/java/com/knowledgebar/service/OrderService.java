@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.knowledgebar.domain.enums.OrderStatus;
@@ -42,6 +44,7 @@ public class OrderService {
     public Long openOrder() {
         Order order = new Order();
         order.setStatus(OrderStatus.OPEN);
+        order.setCreatedAt(LocalDateTime.now());
         orderRepository.save(order);
         return order.getId();
     }
@@ -76,6 +79,7 @@ public OrderResponseDTO getOrderById(Long orderId) {
             order.getStatus(),
             order.getCreatedAt(),
             order.getCanceledAt(),
+            order.getReference(),
             total,
             items
     );
@@ -172,5 +176,41 @@ public OrderResponseDTO getOrderById(Long orderId) {
 
         order.setStatus(OrderStatus.CLOSED);
         orderRepository.save(order);
+    }
+
+    public List<OrderResponseDTO> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(order -> {
+                    List<OrderItemResponseDTO> items = order.getItems().stream()
+                            .map(item -> {
+                                BigDecimal total = item.getProduct().getPrice()
+                                        .multiply(BigDecimal.valueOf(item.getQuantity()));
+
+                                return new OrderItemResponseDTO(
+                                        item.getProduct().getId(),
+                                        item.getProduct().getName(),
+                                        item.getQuantity(),
+                                        item.getProduct().getPrice(),
+                                        total
+                                );
+                            })
+                            .toList();
+
+                    BigDecimal total = items.stream()
+                            .map(OrderItemResponseDTO::getTotal)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return new OrderResponseDTO(
+                            order.getId(),
+                            order.getStatus(),
+                            order.getCreatedAt(),
+                            order.getCanceledAt(),
+                            order.getReference(),
+                            total,
+                            items
+                    );
+                })
+                .toList();
     }
 }
