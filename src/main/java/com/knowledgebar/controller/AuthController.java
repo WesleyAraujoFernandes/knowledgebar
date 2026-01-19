@@ -5,6 +5,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.knowledgebar.domain.model.security.RefreshToken;
 import com.knowledgebar.domain.model.security.jwt.JwtService;
+import com.knowledgebar.domain.model.user.User;
 import com.knowledgebar.domain.repository.RefreshTokenRepository;
 import com.knowledgebar.domain.repository.UserRepository;
 import com.knowledgebar.dto.request.LoginRequest;
@@ -27,21 +29,21 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
-    private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+        private final AuthenticationManager authenticationManager;
+        private final JwtService jwtService;
+        private final RefreshTokenService refreshTokenService;
+        private final UserRepository userRepository;
+        private final RefreshTokenRepository refreshTokenRepository;
 
-    public AuthController(AuthenticationManager authenticationManager,
-            JwtService jwtService, UserRepository userRepository, RefreshTokenService refreshTokenService,
-            RefreshTokenRepository refreshTokenRepository) {
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
-        this.refreshTokenService = refreshTokenService;
-        this.userRepository = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
+        public AuthController(AuthenticationManager authenticationManager,
+                        JwtService jwtService, UserRepository userRepository, RefreshTokenService refreshTokenService,
+                        RefreshTokenRepository refreshTokenRepository) {
+                this.authenticationManager = authenticationManager;
+                this.jwtService = jwtService;
+                this.refreshTokenService = refreshTokenService;
+                this.userRepository = userRepository;
+                this.refreshTokenRepository = refreshTokenRepository;
+        }
 
         @PostMapping("/login")
         public ResponseEntity<LoginResponse> login(
