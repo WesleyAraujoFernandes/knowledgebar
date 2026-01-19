@@ -23,8 +23,9 @@ public class OrderResponseDTO {
     private OrderStatus status;
     private LocalDateTime openedAt;
     private LocalDateTime closedAt;
-    //private BigDecimal subTotal;
+    // private BigDecimal subTotal;
     private String reference;
-    private BigDecimal total;
+    private BigDecimal totalAmount;
+    private BigDecimal paymentAmount;
     private List<OrderItemResponseDTO> items;
 }

@@ -1,5 +1,6 @@
 package com.knowledgebar.domain.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +35,16 @@ public class Order {
     private OrderStatus status;
 
     @Column
-    private String reference; // mesa, nome do cliente, etc.    
+    private String reference; // mesa, nome do cliente, etc.
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime canceledAt;
+
+    private BigDecimal paymentAmount = BigDecimal.ZERO;
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 
     @PrePersist
     public void prePersist() {

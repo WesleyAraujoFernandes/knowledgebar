@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,9 @@ import com.knowledgebar.dto.response.OrderResponseDTO;
 import com.knowledgebar.exception.BusinessException;
 import com.knowledgebar.exception.ResourceNotFoundException;
 
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 
 @Service
 public class OrderService {
@@ -49,45 +50,43 @@ public class OrderService {
         return order.getId();
     }
 
-@Transactional
-public OrderResponseDTO getOrderById(Long orderId) {
+    @Transactional
+    public OrderResponseDTO getOrderById(Long orderId) {
 
-    Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
 
-    List<OrderItemResponseDTO> items = order.getItems().stream()
-            .map(item -> {
-                BigDecimal total = item.getProduct().getPrice()
-                        .multiply(BigDecimal.valueOf(item.getQuantity()));
+        List<OrderItemResponseDTO> items = order.getItems().stream()
+                .map(item -> {
+                    BigDecimal total = item.getProduct().getPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
 
-                return new OrderItemResponseDTO(
-                        item.getProduct().getId(),
-                        item.getProduct().getName(),
-                        item.getQuantity(),
-                        item.getProduct().getPrice(),
-                        total
-                );
-            })
-            .toList();
+                    return new OrderItemResponseDTO(
+                            item.getProduct().getId(),
+                            item.getProduct().getName(),
+                            item.getQuantity(),
+                            item.getProduct().getPrice(),
+                            total);
+                })
+                .toList();
 
-    BigDecimal total = items.stream()
-            .map(OrderItemResponseDTO::getTotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalAmount = items.stream()
+                .map(OrderItemResponseDTO::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    return new OrderResponseDTO(
-            order.getId(),
-            order.getStatus(),
-            order.getCreatedAt(),
-            order.getCanceledAt(),
-            order.getReference(),
-            total,
-            items
-    );
-}
-
+        return new OrderResponseDTO(
+                order.getId(),
+                order.getStatus(),
+                order.getCreatedAt(),
+                order.getCanceledAt(),
+                order.getReference(),
+                totalAmount,
+                order.getPaymentAmount(),
+                items);
+    }
 
     public void addItem(Long orderId, Long productId, Integer quantity) {
-        
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
 
@@ -110,7 +109,7 @@ public OrderResponseDTO getOrderById(Long orderId) {
 
         product.setStockQuantity(product.getStockQuantity() - quantity);
         productRepository.save(product);
-        
+
         StockMovement movement = new StockMovement();
         movement.setProduct(product);
         movement.setType(StockMovementType.OUT);
@@ -118,6 +117,19 @@ public OrderResponseDTO getOrderById(Long orderId) {
         movement.setReason("Saída por comanda " + order.getId());
         movement.setCreatedAt(LocalDateTime.now());
         stockMovementRepository.save(movement);
+    }
+
+    public void updateOrder(Long orderId, OrderStatus status, @Nullable String reference) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
+        if (status != null) {
+            order.setStatus(status);
+        }
+        if (reference != null) {
+            order.setReference(reference);
+        }
+        orderRepository.save(order);
     }
 
     @Transactional
@@ -192,12 +204,11 @@ public OrderResponseDTO getOrderById(Long orderId) {
                                         item.getProduct().getName(),
                                         item.getQuantity(),
                                         item.getProduct().getPrice(),
-                                        total
-                                );
+                                        total);
                             })
                             .toList();
 
-                    BigDecimal total = items.stream()
+                    BigDecimal totalAmount = items.stream()
                             .map(OrderItemResponseDTO::getTotal)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -207,9 +218,9 @@ public OrderResponseDTO getOrderById(Long orderId) {
                             order.getCreatedAt(),
                             order.getCanceledAt(),
                             order.getReference(),
-                            total,
-                            items
-                    );
+                            totalAmount,
+                            order.getPaymentAmount(),
+                            items);
                 })
                 .toList();
     }
