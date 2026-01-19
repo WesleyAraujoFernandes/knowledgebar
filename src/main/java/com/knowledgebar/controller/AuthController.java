@@ -22,6 +22,7 @@ import com.knowledgebar.dto.request.LoginResponse;
 import com.knowledgebar.dto.request.RefreshTokenRequest;
 import com.knowledgebar.exception.UnauthorizedException;
 import com.knowledgebar.service.RefreshTokenService;
+import com.knowledgebar.utils.CookieUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
