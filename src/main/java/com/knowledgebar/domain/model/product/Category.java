@@ -1,4 +1,4 @@
-package com.knowledgebar.domain.model;
+package com.knowledgebar.domain.model.product;
 
 import jakarta.persistence.*;
 import lombok.*;

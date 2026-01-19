@@ -1,4 +1,4 @@
-package com.knowledgebar.domain.model;
+package com.knowledgebar.domain.model.order;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

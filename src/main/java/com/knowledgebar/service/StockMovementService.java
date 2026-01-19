@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.knowledgebar.domain.enums.StockMovementType;
-import com.knowledgebar.domain.model.Product;
-import com.knowledgebar.domain.model.StockMovement;
+import com.knowledgebar.domain.model.product.Product;
+import com.knowledgebar.domain.model.stock.StockMovement;
 import com.knowledgebar.domain.repository.ProductRepository;
 import com.knowledgebar.domain.repository.StockMovementRepository;
 import com.knowledgebar.dto.request.StockMovementRequestDTO;
@@ -32,8 +32,7 @@ public class StockMovementService {
         int newStock = calculateStock(
                 product.getStockQuantity(),
                 dto.getQuantity(),
-                dto.getType()
-        );
+                dto.getType());
 
         product.setStockQuantity(newStock);
 

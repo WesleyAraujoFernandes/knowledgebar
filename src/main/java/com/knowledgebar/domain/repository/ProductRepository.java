@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.knowledgebar.domain.model.Product;
+import com.knowledgebar.domain.model.product.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 

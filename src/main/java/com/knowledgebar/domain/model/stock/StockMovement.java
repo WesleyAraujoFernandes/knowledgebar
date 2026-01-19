@@ -1,9 +1,14 @@
-package com.knowledgebar.domain.model;
+package com.knowledgebar.domain.model.stock;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import com.knowledgebar.domain.enums.StockMovementType;
+import com.knowledgebar.domain.model.product.Product;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,35 +18,37 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "products")
+@Table(name = "stock_movements")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
-public class Product {
+public class StockMovement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 120)
-    private String name;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StockMovementType type;
 
     @Column(nullable = false)
-    private Integer stockQuantity;
+    private Integer quantity;
+
+    @Column(length = 255)
+    private String reason;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 }

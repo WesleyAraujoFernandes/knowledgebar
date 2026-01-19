@@ -1,6 +1,6 @@
 package com.knowledgebar.service;
 
-import com.knowledgebar.domain.model.Category;
+import com.knowledgebar.domain.model.product.Category;
 import com.knowledgebar.domain.repository.CategoryRepository;
 import com.knowledgebar.dto.request.CategoryRequestDTO;
 import com.knowledgebar.dto.response.CategoryResponseDTO;

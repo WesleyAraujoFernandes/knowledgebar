@@ -1,7 +1,8 @@
 package com.knowledgebar.domain.repository;
 
-import com.knowledgebar.domain.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.knowledgebar.domain.model.product.Category;
 
 import java.util.Optional;
 

@@ -1,4 +1,6 @@
-package com.knowledgebar.domain.model;
+package com.knowledgebar.domain.model.order;
+
+import com.knowledgebar.domain.model.product.Product;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,4 +32,3 @@ public class OrderItem {
 
     // getters e setters
 }
-

@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.knowledgebar.domain.enums.OrderStatus;
 import com.knowledgebar.domain.enums.StockMovementType;
-import com.knowledgebar.domain.model.Order;
-import com.knowledgebar.domain.model.OrderItem;
-import com.knowledgebar.domain.model.Product;
-import com.knowledgebar.domain.model.StockMovement;
+import com.knowledgebar.domain.model.order.Order;
+import com.knowledgebar.domain.model.order.OrderItem;
+import com.knowledgebar.domain.model.product.Product;
+import com.knowledgebar.domain.model.stock.StockMovement;
 import com.knowledgebar.domain.repository.OrderRepository;
 import com.knowledgebar.domain.repository.ProductRepository;
 import com.knowledgebar.domain.repository.StockMovementRepository;
