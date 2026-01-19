@@ -195,6 +195,19 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    @Transactional
+    public void reopenOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
+
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            throw new BusinessException("Comanda está cancelada e não pode ser reaberta");
+        }
+
+        order.setStatus(OrderStatus.OPEN);
+        orderRepository.save(order);
+    }
+
     public List<OrderResponseDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return orders.stream()
