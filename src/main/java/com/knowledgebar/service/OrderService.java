@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.knowledgebar.domain.enums.OrderStatus;
@@ -23,7 +22,6 @@ import com.knowledgebar.exception.ResourceNotFoundException;
 
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 
 @Service
 public class OrderService {
@@ -42,7 +40,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Long openOrder() {
+    public Long createOrder() {
         Order order = new Order();
         order.setStatus(OrderStatus.OPEN);
         order.setCreatedAt(LocalDateTime.now());
@@ -119,12 +117,19 @@ public class OrderService {
         stockMovementRepository.save(movement);
     }
 
-    public void updateOrder(Long orderId, OrderStatus status, @Nullable String reference) {
+    public void updateOrder(
+            Long orderId,
+            @Nullable OrderStatus status,
+            BigDecimal paymentAmount,
+            @Nullable String reference) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comanda não encontrada"));
         if (status != null) {
             order.setStatus(status);
+        }
+        if (paymentAmount != null) {
+            order.setPaymentAmount(paymentAmount);
         }
         if (reference != null) {
             order.setReference(reference);

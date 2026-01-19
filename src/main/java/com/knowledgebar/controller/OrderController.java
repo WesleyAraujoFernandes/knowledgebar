@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.knowledgebar.dto.request.UpdateItemRequestDTO;
+import com.knowledgebar.dto.request.UpdateOrderRequestDTO;
 import com.knowledgebar.service.OrderService;
 
 @RestController
@@ -33,18 +35,25 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> open() {
-        Long orderId = orderService.openOrder();
+    public ResponseEntity<Long> create() {
+        Long orderId = orderService.createOrder();
         return ResponseEntity.ok(orderId);
+    }
+
+    @PutMapping("/{orderId}")
+    public ResponseEntity<Void> update(
+            @PathVariable Long orderId,
+            @RequestBody UpdateOrderRequestDTO request) {
+        orderService.updateOrder(orderId, request.getStatus(), request.getPaymentAmount(), request.getReference());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{orderId}/items")
     public ResponseEntity<Void> addItem(
             @PathVariable Long orderId,
-            @RequestParam Long productId,
-            @RequestParam Integer quantity) {
+            @RequestBody UpdateItemRequestDTO request) {
 
-        orderService.addItem(orderId, productId, quantity);
+        orderService.addItem(orderId, request.getProductId(), request.getQuantity());
         return ResponseEntity.noContent().build();
     }
 
